@@ -211,14 +211,17 @@
 
 				noscript = images[i].getElementsByTagName('noscript')[0];
 
-				data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
+				if(noscript){
 
-				for(key in data) {
-					/* Android DOMStringMap has no method "hasOwnProperty()" */
-					attr[i][key] = data[key];
-				}
+		          data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
 
-				attr[i].path = getImagePath(attr[i]);
+		          for(key in data) {
+		            /* Android DOMStringMap has no method "hasOwnProperty()" */
+		            attr[i][key] = data[key];
+		          }
+
+		          attr[i].path = getImagePath(attr[i]);
+		        }
 			}
 
 			return attr;
@@ -446,7 +449,7 @@
 
 	function extend(destination, source) {
 		for (var property in source) {
-			if(source.hasOwnProperty(property)) destination[property] = source[property];
+			if(source.hasOwnProperty(property) && typeof source[property] !== 'undefined') destination[property] = source[property];
 		}
 
 		return destination;
