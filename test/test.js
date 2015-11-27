@@ -124,4 +124,14 @@ describe('Rimd', function() {
 			expect(path === 'path/to/image.jpg/600/').to.be.ok;
 		});
 	});
+
+	describe('missingSrc', function() {
+		it('should not crash', function() {
+				
+			expect(new Rimd(
+				className: 'missingSrc'
+			)).to.not.throw('Error');
+		});
+
+	});
 });
