@@ -211,17 +211,17 @@
 
 				noscript = images[i].getElementsByTagName('noscript')[0];
 
-				if(noscript){
+				if(noscript) {
 
-		          data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
+					data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
 
-		          for(key in data) {
-		            /* Android DOMStringMap has no method "hasOwnProperty()" */
-		            attr[i][key] = data[key];
-		          }
+					for(key in data) {
+						/* Android DOMStringMap has no method "hasOwnProperty()" */
+						attr[i][key] = data[key];
+					}
 
-		          attr[i].path = getImagePath(attr[i]);
-		        }
+					attr[i].path = getImagePath(attr[i]);
+				}
 			}
 
 			return attr;

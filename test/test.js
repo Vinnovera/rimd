@@ -125,13 +125,29 @@ describe('Rimd', function() {
 		});
 	});
 
-	describe('missingSrc', function() {
-		it('should not crash', function() {
-				
-			expect(new Rimd(
-				className: 'missingSrc'
-			)).to.not.throw('Error');
+	describe('malfromed input', function() {
+		describe('missing data-src', function() {
+			it('should not crash', function() {
+					
+				expect(new Rimd({
+					className: 'missingSrc'
+				})).to.not.throw(TypeError);
+			});
+
 		});
 
+		describe('missing path', function() {
+			it('should not crash', function() {
+				var 
+					path, // undefined
+					rimd = new Rimd({
+						path: path,
+						className: 'missingPath',
+						reloadOnResize: true
+					});
+
+				expect(rimd.update).to.not.throw(TypeError);
+			});
+		});
 	});
 });
