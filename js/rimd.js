@@ -2,10 +2,31 @@
  * @author Per Stenström <per@vinnovera.se>
  */
 
-(function(win, doc) {
+/*global
+	define, module
+*/
+
+(function (root, factory) {
 	"use strict";
 
+	if (typeof define === 'function' && define.amd) {
+		define([], factory());
+	} else if (typeof exports === 'object') {
+		module.exports = factory();
+	} else {
+		root.Rimd = factory();
+	}
+}(this, function () {
+	"use strict";
+
+	if (!window) {
+		/* Doesn't work in node env */
+		return false;
+	}
+
 	var
+		win           = window,
+		doc           = document,
 		_retinaScreen = (win.devicePixelRatio > 1);
 
 	// window.addEventListener polyfill
@@ -453,5 +474,5 @@
 		};
 	}
 
-	win.Rimd = Rimd;
-})(this, this.document);
+	return Rimd;
+}));
