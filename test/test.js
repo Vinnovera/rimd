@@ -128,10 +128,12 @@ describe('Rimd', function() {
 	describe('malfromed input', function() {
 		describe('missing data-src', function() {
 			it('should not crash', function() {
-					
-				expect(new Rimd({
-					className: 'missingSrc'
-				})).to.not.throw(TypeError);
+				var rimd = new Rimd({
+					className: 'missingSrc',
+					reloadOnResize: true
+				});
+
+				expect(rimd.update).to.not.throw(TypeError);
 			});
 
 		});
@@ -143,6 +145,18 @@ describe('Rimd', function() {
 					rimd = new Rimd({
 						path: path,
 						className: 'missingPath',
+						reloadOnResize: true
+					});
+
+				expect(rimd.update).to.not.throw(TypeError);
+			});
+		});
+
+		describe('missing noscript element', function() {
+			it('should not crash', function() {
+				var 
+					rimd = new Rimd({
+						className: 'missingNoscript',
 						reloadOnResize: true
 					});
 

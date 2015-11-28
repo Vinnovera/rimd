@@ -88,6 +88,8 @@
 					len = elems.length;
 
 				for (; i < len; i++) {
+					if(!('src' in newAttr)) continue;
+
 					if(attr[i].path !== getImagePath(newAttr[i])) {
 						images[i].updateImage(newAttr[i]);
 					}
@@ -201,6 +203,7 @@
 				i = 0,
 				data = {},
 				noscript,
+				keys,
 				key;
 
 			for (; i < len; i++) {
@@ -211,17 +214,18 @@
 
 				noscript = images[i].getElementsByTagName('noscript')[0];
 
-				if(noscript) {
+				if(!noscript) continue;
 
-					data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
+				data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
 
-					for(key in data) {
-						/* Android DOMStringMap has no method "hasOwnProperty()" */
-						attr[i][key] = data[key];
-					}
+				if(!('src' in data)) continue;
 
-					attr[i].path = getImagePath(attr[i]);
+				for(key in data) {
+					/* Android DOMStringMap has no method "hasOwnProperty()" */
+					attr[i][key] = data[key];
 				}
+
+				attr[i].path = getImagePath(attr[i]);
 			}
 
 			return attr;
