@@ -185,6 +185,7 @@
 
 			if(typeof options.heights === 'Object') {
 				height = getClosestValues(options.heights, attr.offsetHeight);
+				
 			} else if(options.heights === 'aspectratio') {
 				height = ~~((attr.offsetHeight / attr.offsetWidth) * getClosestValues(options.widths, attr.offsetWidth));
 			}
@@ -203,7 +204,6 @@
 				i = 0,
 				data = {},
 				noscript,
-				keys,
 				key;
 
 			for (; i < len; i++) {
