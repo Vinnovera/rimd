@@ -2,10 +2,6 @@
  * @author Per Stenström <per@vinnovera.se>
  */
 
-/*global
-	define, module
-*/
-
 (function (root, factory) {
 	"use strict";
 
