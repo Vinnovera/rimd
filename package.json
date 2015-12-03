@@ -2,9 +2,16 @@
   "name": "Rimd",
   "version": "0.1.0",
   "description": "Responsive images",
+  "main": "js/rimd.min.js",
   "scripts": {
     "test": "mocha-phantomjs test/test.html"
   },
+  "keywords": [
+    "images",
+    "img",
+    "esponsive",
+    "element query"
+  ],
   "dependencies": {},
   "devDependencies": {
     "gulp": "^3.8.8",
@@ -26,5 +33,9 @@
     "url": "https://github.com/Vinnovera/rimd/issues"
   },
   "homepage": "https://github.com/Vinnovera/rimd",
-  "author": "Per Stenström"
+  "author": {
+    "name": "Per Stenström",
+    "email": "per@vinnovera.se"
+  },
+  "license": "ISC"
 }
