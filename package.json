@@ -1,5 +1,5 @@
 {
-  "name": "Rimd",
+  "name": "rimd",
   "version": "0.1.0",
   "description": "Responsive images",
   "main": "js/rimd.min.js",
