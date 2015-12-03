@@ -14,8 +14,8 @@
     "gulp-rename": "^1.2.0",
     "jshint-stylish": "^1.0.0",
     "gulp-uglify": "^1.0.1",
-    "mocha-phantomjs": "^3.5.1",
-    "phantomjs": "^1.9.12",
+    "mocha-phantomjs": "3.6.0",
+    "phantomjs": "1.9.7-15",
     "chai": "^1.9.2"
   },
   "repository": {
