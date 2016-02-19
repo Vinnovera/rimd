@@ -54,6 +54,7 @@
 				widths:           ['320', '600', '1024'],
 				heights:          ['320', '600', '1024'],
 				path:             'resimage/?image={path}&w={width}',
+				blacklist:        [],
 				reloadOnResize:   false,
 				lazyload:         false,
 				closestAbove:     false,
@@ -134,17 +135,22 @@
 		function getImagePath(attr) {
 			var 
 				parts = attr.src.split('?'),
+				ext,
 				get,
 				newPath;
 
 			attr.path = parts[0];
+
+			ext = getExtension(attr.path);
+
+			if(options.blacklist.indexOf(ext) !== -1) return attr.path;
 
 			newPath = options.path.replace(pathRegex, function(match, tag, cha){
 				return pathReplace(attr, match, tag, cha);
 			});
 
 			if(parts.length > 1) {
-				get  = parts[1];
+				get = parts[1];
 				
 				if(pathHasGet) {
 					newPath += '&' + get;
@@ -183,7 +189,7 @@
 		function getHeight (attr) {
 			var height;
 
-			if(typeof options.heights === 'Object') {
+			if(typeof options.heights === 'object') {
 				height = getClosestValues(options.heights, attr.offsetHeight);
 				
 			} else if(options.heights === 'aspectratio') {
@@ -195,6 +201,17 @@
 			attr.height = height;
 
 			return height;
+		}
+
+		function getExtension(path) {
+			var file, ext;
+
+			if(!path) return false;
+			
+			file = path.split(/\?|\#/i)[0];
+			ext = file.match(/(?:\.([^.]+))?$/)[1];
+
+			return ext;
 		}
 
 		function getImageAttributes(images) {
@@ -354,7 +371,8 @@
 				getImageAttributes: getImageAttributes,
 				legacyGetElementByClass: legacyGetElementByClass,
 				getImagePath: getImagePath,
-				extend: extend
+				extend: extend,
+				getExtension: getExtension
 			};
 		}
 

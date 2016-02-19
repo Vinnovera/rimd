@@ -125,6 +125,59 @@ describe('Rimd', function() {
 		});
 	});
 
+	describe('blacklist', function() {
+		it('should not transform images with blacklisted extension', function() {
+			var 
+				rimd = new Rimd({
+					blacklist: ['gif']
+				}),
+				imagePath = 'path/to/image.gif',
+				path = rimd.test.getImagePath({
+					'src': imagePath
+				});
+
+			expect(path === imagePath).to.be.ok;
+		});
+	});
+
+	describe('getExtension', function() {
+		var rimd = new Rimd;
+
+		it('should return extenstion from path', function() {
+			var ext = rimd.test.getExtension('path/to/image.jpg');
+
+			expect(ext === 'jpg').to.be.ok;
+		});
+
+		it('should return extenstion from path with multiple periods', function() {
+			var ext = rimd.test.getExtension('path/to.the/image.file.jpg');
+
+			expect(ext === 'jpg').to.be.ok;
+		});
+
+		it('should return extenstion from url with search param', function() {
+			var ext = rimd.test.getExtension('path/to/image.jpg?q=query');
+
+			expect(ext === 'jpg').to.be.ok;
+		});
+
+		it('should return extenstion from url with search param and hash', function() {
+			var ext = rimd.test.getExtension('path/to/image.jpg?q=query#hash');
+
+			expect(ext === 'jpg').to.be.ok;
+		});
+
+		it('should return falsy when no extension', function() {
+			var ext = rimd.test.getExtension('path/to/image?q=query');
+
+			expect(!ext).to.be.ok;
+		});
+
+		it('should not crash on bad input', function() {
+			expect(rimd.test.getExtension).to.not.throw(TypeError);
+		});
+	});
+
 	describe('malfromed input', function() {
 		describe('missing data-src', function() {
 			it('should not crash', function() {
