@@ -178,6 +178,15 @@ describe('Rimd', function() {
 		});
 	});
 
+	describe('buildPathRegex', function() {
+
+		it('should return a regular expression based on path', function() {
+			var rimd = new Rimd;
+
+			expect(rimd.test.buildPathRegex('{path}').toString()).to.be.equal('/\\{path\\}/g');
+		});
+	});
+
 	describe('malfromed input', function() {
 		describe('missing data-src', function() {
 			it('should not crash', function() {

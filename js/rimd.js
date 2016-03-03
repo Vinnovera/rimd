@@ -70,7 +70,7 @@
 		options = extend(defaults, params);
 
 		pathHasGet = options.path.split('?').length > 1;
-		pathRegex = buildPathRegex();
+		pathRegex = buildPathRegex(options.path);
 
 		if(options.nodeList.length) {
 			nodeList = options.nodeList;
@@ -102,13 +102,13 @@
 			win.addEventListener('resize', resizeHandler);
 		}
 
-		function buildPathRegex() {
+		function buildPathRegex(path) {
 			var
 				rex = /\{([\s\S]+?)\}/g,
 				pathRegex = '',
 				match;
 
-			while((match = rex.exec(options.path)) !== null) {
+			while((match = rex.exec(path)) !== null) {
 				pathRegex += '|\\{' + match[1] + '\\}';
 			}
 
