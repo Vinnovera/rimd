@@ -126,6 +126,55 @@ describe('Rimd', function() {
 		});
 	});
 
+	describe('pathOverride', function() {
+		it('should use separate path for certain file extensions', function() {
+			var 
+				rimd = new Rimd({
+					className: 'pathOverride',
+					path: 'normal/{path}/to/image/{width}',
+					pathOverride: {
+						gif: 'overridden/{path}/to/image'
+					}
+				}),
+				elem = rimd.test.legacyGetElementByClass('pathOverride')[0],
+				img = elem.getElementsByTagName('img')[0],
+				i, len;
+
+			for(i = 0, len = img.attributes.length; i < len; i++) {
+				if(img.attributes[i].name === 'src') {
+					expect(img.attributes[i].value).to.be.equal('overridden/image.gif/to/image');
+					return;
+				}
+			}
+
+			throw new Error('src attribute not found');
+		});
+
+		it('should use the regular path', function() {
+			var 
+				rimd = new Rimd({
+					className: 'pathOverride2',
+					path: 'normal/{path}/to/image/{width}',
+					pathOverride: {
+						gif: 'overridden/{path}/to/image'
+					},
+					widths: [400]
+				}),
+				elem = rimd.test.legacyGetElementByClass('pathOverride2')[0],
+				img = elem.getElementsByTagName('img')[0],
+				i, len;
+
+			for(i = 0, len = img.attributes.length; i < len; i++) {
+				if(img.attributes[i].name === 'src') {
+					expect(img.attributes[i].value).to.be.equal('normal/image.jpg/to/image/400');
+					return;
+				}
+			}
+
+			throw new Error('src attribute not found');
+		});
+	});
+
 	describe('blacklist', function() {
 		it('should not transform images with blacklisted extension', function() {
 			var 

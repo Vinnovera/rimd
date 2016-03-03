@@ -54,6 +54,7 @@
 				widths:           ['320', '600', '1024'],
 				heights:          ['320', '600', '1024'],
 				path:             'resimage/?image={path}&w={width}',
+				pathOverride:     {},
 				blacklist:        [],
 				reloadOnResize:   false,
 				lazyload:         false,
