@@ -22,12 +22,12 @@ describe('Rimd', function() {
 			rimd = new Rimd;
 
 		it('should return closest value from array', function () {
-			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410) === 400).to.be.true;
+			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410)).to.be.equal(400);
 		});
 
 		it('should return closest value above from array', function () {
 			rimd.options.closestAbove = true;
-			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410) === 550).to.be.true;
+			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410)).to.be.equal(550);
 		});
 	});
 
@@ -88,7 +88,7 @@ describe('Rimd', function() {
 					'offsetWidth': 500
 				});
 
-			expect(path === 'resimage/?image=path/to/image.jpg&w=600').to.be.ok;
+			expect(path).to.be.equal('resimage/?image=path/to/image.jpg&w=600');
 		});
 
 		it('should add arbitrary data values to the path', function() {
@@ -103,7 +103,7 @@ describe('Rimd', function() {
 
 			for(i = 0, len = img.attributes.length; i < len; i++) {
 				if(img.attributes[i].name === 'src') {
-					expect(img.attributes[i].value === 'bar').to.be.ok;
+					expect(img.attributes[i].value).to.be.equal('bar');
 					return;
 				}
 			}
@@ -121,7 +121,7 @@ describe('Rimd', function() {
 					'offsetWidth': 500
 				});
 
-			expect(path === 'path/to/image.jpg/600/').to.be.ok;
+			expect(path).to.be.equal('path/to/image.jpg/600/');
 		});
 	});
 
@@ -136,7 +136,7 @@ describe('Rimd', function() {
 					'src': imagePath
 				});
 
-			expect(path === imagePath).to.be.ok;
+			expect(path).to.be.equal(imagePath);
 		});
 	});
 
@@ -146,25 +146,25 @@ describe('Rimd', function() {
 		it('should return extenstion from path', function() {
 			var ext = rimd.test.getExtension('path/to/image.jpg');
 
-			expect(ext === 'jpg').to.be.ok;
+			expect(ext).to.be.equal('jpg');
 		});
 
 		it('should return extenstion from path with multiple periods', function() {
 			var ext = rimd.test.getExtension('path/to.the/image.file.jpg');
 
-			expect(ext === 'jpg').to.be.ok;
+			expect(ext).to.be.equal('jpg');
 		});
 
 		it('should return extenstion from url with search param', function() {
 			var ext = rimd.test.getExtension('path/to/image.jpg?q=query');
 
-			expect(ext === 'jpg').to.be.ok;
+			expect(ext).to.be.equal('jpg');
 		});
 
 		it('should return extenstion from url with search param and hash', function() {
 			var ext = rimd.test.getExtension('path/to/image.jpg?q=query#hash');
 
-			expect(ext === 'jpg').to.be.ok;
+			expect(ext).to.be.equal('jpg');
 		});
 
 		it('should return falsy when no extension', function() {
