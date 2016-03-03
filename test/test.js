@@ -74,6 +74,7 @@ describe('Rimd', function() {
 				'offsetHeight': 0,
 				'offsetWidth': 400,
 				'path': 'resimage/?image=path/to/image.jpg&w=320',
+				'ext': 'jpg',
 				'width': 320
 			}]);
 		}); 
@@ -133,7 +134,8 @@ describe('Rimd', function() {
 				}),
 				imagePath = 'path/to/image.gif',
 				path = rimd.test.getImagePath({
-					'src': imagePath
+					'src': imagePath,
+					'ext': 'gif'
 				});
 
 			expect(path).to.be.equal(imagePath);

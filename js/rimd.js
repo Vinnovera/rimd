@@ -135,15 +135,12 @@
 		function getImagePath(attr) {
 			var 
 				parts = attr.src.split('?'),
-				ext,
 				get,
 				newPath;
 
 			attr.path = parts[0];
 
-			ext = getExtension(attr.path);
-
-			if(options.blacklist.indexOf(ext) !== -1) return attr.path;
+			if(options.blacklist.indexOf(attr.ext) !== -1) return attr.path;
 
 			newPath = options.path.replace(pathRegex, function(match, tag, cha){
 				return pathReplace(attr, match, tag, cha);
@@ -243,6 +240,8 @@
 				}
 
 				attr[i].path = getImagePath(attr[i]);
+
+				attr[i].ext = getExtension(attr[i].src);
 			}
 
 			return attr;
@@ -372,7 +371,8 @@
 				legacyGetElementByClass: legacyGetElementByClass,
 				getImagePath: getImagePath,
 				extend: extend,
-				getExtension: getExtension
+				getExtension: getExtension,
+				buildPathRegex: buildPathRegex
 			};
 		}
 
