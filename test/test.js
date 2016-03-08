@@ -96,7 +96,16 @@ describe('Rimd', function() {
 				'ext': 'jpg',
 				'width': 320
 			}]);
-		}); 
+		});
+
+		it('should return the extension of image', function() {
+			var
+				elem = rimd.test.legacyGetElementByClass('getImageAttributesExt'),
+				attr = rimd.test.getImageAttributes(elem)[0];
+
+			expect(attr).to.include.keys('ext');
+			expect(attr.ext).to.be.equal('jpg');
+		});
 	});
 
 	describe('getImagePath', function() {
@@ -208,6 +217,27 @@ describe('Rimd', function() {
 
 			expect(path).to.be.equal(imagePath);
 		});
+
+		it('should have untransformed path', function() {
+			var 
+				rimd = new Rimd({
+					className: 'blacklist',
+					blacklist: ['gif'],
+					widths: [400]
+				}),
+				elem = rimd.test.legacyGetElementByClass('blacklist')[0],
+				img = elem.getElementsByTagName('img')[0],
+				i, len;
+
+			for(i = 0, len = img.attributes.length; i < len; i++) {
+				if(img.attributes[i].name === 'src') {
+					expect(img.attributes[i].value).to.be.equal('path/to/image.gif');
+					return;
+				}
+			}
+
+			throw new Error('src attribute not found');
+		});
 	});
 
 	describe('getExtension', function() {
@@ -254,6 +284,12 @@ describe('Rimd', function() {
 			var rimd = new Rimd;
 
 			expect(rimd.test.buildPathRegex('{path}').toString()).to.be.equal('/\\{path\\}/g');
+		});
+
+		it('should return a regular expression based on path', function() {
+			var rimd = new Rimd;
+
+			expect(rimd.test.buildPathRegex('/path/{path}/width/{width}/{nothing}').toString()).to.be.equal('/\\{path\\}|\\{width\\}|\\{nothing\\}/g');
 		});
 	});
 

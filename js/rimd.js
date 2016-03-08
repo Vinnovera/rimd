@@ -66,12 +66,25 @@
 			elems = [],
 			attr = [],
 			queue = [],
+			regexes = {},
 			pathHasGet, pathRegex, nodeList, resizeHandler, properties;
 
 		options = extend(defaults, params);
 
 		pathHasGet = options.path.split('?').length > 1;
 		pathRegex = buildPathRegex(options.path);
+
+		if(sizeOf(options.pathOverride)) {
+			(function() {
+				var key;
+
+				for(key in options.pathOverride) {
+					if(!options.pathOverride.hasOwnProperty(key)) continue;
+
+					regexes[key] = buildPathRegex(options.pathOverride[key]);
+				}
+			})();
+		}
 
 		if(options.nodeList.length) {
 			nodeList = options.nodeList;
@@ -136,14 +149,21 @@
 		function getImagePath(attr) {
 			var 
 				parts = attr.src.split('?'),
-				get,
-				newPath;
+				rex = pathRegex,
+				path = options.path,
+				newPath,
+				get;
 
 			attr.path = parts[0];
 
 			if(options.blacklist.indexOf(attr.ext) !== -1) return attr.path;
 
-			newPath = options.path.replace(pathRegex, function(match, tag, cha){
+			if(attr.ext in regexes) {
+				rex = regexes[attr.ext];
+				path = options.pathOverride[attr.ext];
+			}
+
+			newPath = path.replace(rex, function(match, tag, cha){
 				return pathReplace(attr, match, tag, cha);
 			});
 
@@ -240,9 +260,9 @@
 					attr[i][key] = data[key];
 				}
 
-				attr[i].path = getImagePath(attr[i]);
-
 				attr[i].ext = getExtension(attr[i].src);
+
+				attr[i].path = getImagePath(attr[i]);
 			}
 
 			return attr;
