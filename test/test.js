@@ -2,7 +2,6 @@ var
 	expect = chai.expect,
 	DEBUG = true;
 
-
 describe('Rimd', function() {
 	describe('constructor', function() {
 		var
@@ -47,6 +46,26 @@ describe('Rimd', function() {
 				c: 'd',
 				f: 'g'
 			});
+		});
+	});
+
+	describe('sizeOf', function() {
+		var
+			rimd = new Rimd;
+
+		it('should return size of object', function () {
+			expect(rimd.test.sizeOf({
+				a: 'b',
+				c: 'd'
+			})).to.deep.equal(2);
+		});
+
+		it('should return zero of empty object', function () {
+			expect(rimd.test.sizeOf({})).to.deep.equal(0);
+		});
+
+		it('should not crash on bad input', function () {
+			expect(rimd.test.sizeOf.bind(null, '')).to.not.throw(TypeError);
 		});
 	});
 

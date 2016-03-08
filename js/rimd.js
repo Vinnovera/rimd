@@ -372,6 +372,7 @@
 				legacyGetElementByClass: legacyGetElementByClass,
 				getImagePath: getImagePath,
 				extend: extend,
+				sizeOf: sizeOf,
 				getExtension: getExtension,
 				buildPathRegex: buildPathRegex
 			};
@@ -476,6 +477,18 @@
 		}
 
 		return destination;
+	}
+
+	function sizeOf(object) {
+		var 
+			length = 0,
+			property;
+
+		for (property in object) {
+			if(object.hasOwnProperty(property)) length++;
+		}
+
+		return length;
 	}
 
 	function throttle(fn, threshhold, context) {
