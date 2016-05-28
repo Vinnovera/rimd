@@ -339,7 +339,8 @@
 				getImageAttributes: getImageAttributes,
 				legacyGetElementByClass: legacyGetElementByClass,
 				getImagePath: getImagePath,
-				extend: extend
+				extend: extend,
+				throttle: throttle
 			};
 		}
 
@@ -451,7 +452,7 @@
 
 		return function() {
 			var
-				now = new Date(),
+				now = new Date().getTime(),
 				args = arguments;
 
 			context = context || this;

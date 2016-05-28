@@ -124,4 +124,58 @@ describe('Rimd', function() {
 			expect(path === 'path/to/image.jpg/600/').to.be.ok;
 		});
 	});
+
+	describe('throttle', function() {
+		it('should allow the leading call to trigger', function() {
+			var 
+				rimd = new Rimd,
+				callback = sinon.spy(),
+				throttledCallack = rimd.test.throttle(callback);
+
+			throttledCallack();
+
+			expect(callback.called).to.be.ok;
+		});
+
+		it('should limit the freaquency a function can be called', function(done) {
+			var 
+				rimd = new Rimd,
+				callback = sinon.spy(),
+				throttledCallack = rimd.test.throttle(callback, 5);
+
+			throttledCallack();
+			throttledCallack();
+
+			expect(callback.calledOnce).to.be.ok;
+
+			setTimeout(function() {
+				throttledCallack();
+
+				expect(callback.calledTwice).to.be.ok;
+
+				done();
+			}, 6);
+		});
+
+		it('should limit the freaquency a function continously being called is triggered', function(done) {
+			var 
+				rimd = new Rimd,
+				callback = sinon.spy(),
+				throttledCallack = rimd.test.throttle(callback, 5),
+				idx = 0,
+				interval;
+
+			interval = setInterval(function() {
+				idx++;
+				throttledCallack();
+
+				if(idx >= 12) {
+					clearTimeout(interval);
+					expect(callback.callCount).to.be.equal(3);
+					done();
+				}
+			}, 1);
+		});
+
+	});
 });
