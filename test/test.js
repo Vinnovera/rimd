@@ -132,26 +132,28 @@ describe('Rimd', function() {
 				callback = sinon.spy(),
 				throttledCallack = rimd.test.throttle(callback);
 
-			throttledCallack();
+			throttledCallack('le1');
 
 			expect(callback.called).to.be.ok;
 		});
 
-		it('should limit the freaquency a function can be called', function(done) {
+		it('should allow the trailing call to trigger', function(done) {
 			var 
 				rimd = new Rimd,
 				callback = sinon.spy(),
 				throttledCallack = rimd.test.throttle(callback, 5);
 
-			throttledCallack();
-			throttledCallack();
+			throttledCallack('se1');
+			throttledCallack('se2');
+			throttledCallack('se3');
+			throttledCallack('se4');
 
 			expect(callback.calledOnce).to.be.ok;
+			expect(callback.args[0][0]).to.be.equal('se1');
 
 			setTimeout(function() {
-				throttledCallack();
-
 				expect(callback.calledTwice).to.be.ok;
+				expect(callback.args[1][0]).to.be.equal('se4');
 
 				done();
 			}, 6);
@@ -161,20 +163,20 @@ describe('Rimd', function() {
 			var 
 				rimd = new Rimd,
 				callback = sinon.spy(),
-				throttledCallack = rimd.test.throttle(callback, 5),
+				throttledCallack = rimd.test.throttle(callback, 40),
 				idx = 0,
 				interval;
 
 			interval = setInterval(function() {
 				idx++;
-				throttledCallack();
+				throttledCallack('int' + idx);
 
 				if(idx >= 12) {
 					clearTimeout(interval);
 					expect(callback.callCount).to.be.equal(3);
 					done();
 				}
-			}, 1);
+			}, 10);
 		});
 
 	});

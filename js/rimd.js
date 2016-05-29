@@ -444,29 +444,48 @@
 		return destination;
 	}
 
+	// http://underscorejs.org/docs/underscore.html#section-82
 	function throttle(fn, threshhold, context) {
 		var 
-			last, deferTimer;
+			args,
+			last = 0,
+			deferTimer = null,
+			later = function() {
+				last = new Date().getTime();
+				fn.apply(context, args);
+
+				context = args = null;
+			};
 
 		threshhold = threshhold || 17; // ~ 1000 / 60
 
 		return function() {
 			var
 				now = new Date().getTime(),
-				args = arguments;
+				remaining = threshhold - (now - last);
+				
+			args = arguments;
 
 			context = context || this;
 
-			if (last && now < last + threshhold) {
-				// hold on to it
-				clearTimeout(deferTimer);
-				deferTimer = setTimeout(function() {
-					last = now;
-					fn.apply(context, args);
-				}, threshhold);
+			if (last && (remaining <= 0 || remaining > threshhold)) {
+
+				if (deferTimer) {
+					clearTimeout(deferTimer);
+					deferTimer = null;
+				}
+
+				later();
+
+			} else if(!last) {
+
+				// Leading call
+				later();
 			} else {
-				last = now;
-				fn.apply(context, args);
+
+				// Trailing call
+				clearTimeout(deferTimer);
+				deferTimer = setTimeout(later, remaining);
 			}
 		};
 	}
