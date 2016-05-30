@@ -71,6 +71,8 @@
 				widths:           ['320', '600', '1024'],
 				heights:          ['320', '600', '1024'],
 				path:             'resimage/?image={path}&w={width}',
+				pathOverride:     {},
+				blacklist:        [],
 				reloadOnResize:   false,
 				lazyload:         false,
 				closestAbove:     false,
@@ -80,12 +82,26 @@
 			images = [],
 			elems = [],
 			attr = [],
+			queue = [],
+			regexes = {},
 			pathHasGet, pathRegex, nodeList, resizeHandler, properties;
 
 		options = extend(defaults, params);
 
 		pathHasGet = options.path.split('?').length > 1;
-		pathRegex = buildPathRegex();
+		pathRegex = buildPathRegex(options.path);
+
+		if(sizeOf(options.pathOverride)) {
+			(function() {
+				var key;
+
+				for(key in options.pathOverride) {
+					if(!options.pathOverride.hasOwnProperty(key)) continue;
+
+					regexes[key] = buildPathRegex(options.pathOverride[key]);
+				}
+			})();
+		}
 
 		if(options.nodeList.length) {
 			nodeList = options.nodeList;
@@ -104,6 +120,8 @@
 					len = elems.length;
 
 				for (; i < len; i++) {
+					if(!('src' in newAttr)) continue;
+
 					if(attr[i].path !== getImagePath(newAttr[i])) {
 						images[i].updateImage(newAttr[i]);
 					}
@@ -115,13 +133,13 @@
 			win.addEventListener('resize', resizeHandler);
 		}
 
-		function buildPathRegex() {
+		function buildPathRegex(path) {
 			var
 				rex = /\{([\s\S]+?)\}/g,
 				pathRegex = '',
 				match;
 
-			while((match = rex.exec(options.path)) !== null) {
+			while((match = rex.exec(path)) !== null) {
 				pathRegex += '|\\{' + match[1] + '\\}';
 			}
 
@@ -135,26 +153,39 @@
 				i = 0;
 
 			for (;i < len; i++) {
-				images.push(singleImage(nodeList[i], attributes[i], options.lazyload, options.centerImage));
-				elems.push(nodeList[i]);
-				attr.push(attributes[i]);
+				if(attributes[i].offsetWidth) {
+					images.push(singleImage(nodeList[i], attributes[i], options.lazyload, options.centerImage));
+					elems.push(nodeList[i]);
+					attr.push(attributes[i]);
+				} else {
+					queue.push(nodeList[i]);
+				}
 			}
 		}
 
 		function getImagePath(attr) {
 			var 
 				parts = attr.src.split('?'),
-				get,
-				newPath;
+				rex = pathRegex,
+				path = options.path,
+				newPath,
+				get;
 
 			attr.path = parts[0];
 
-			newPath = options.path.replace(pathRegex, function(match, tag, cha){
+			if(options.blacklist.indexOf(attr.ext) !== -1) return attr.path;
+
+			if(attr.ext in regexes) {
+				rex = regexes[attr.ext];
+				path = options.pathOverride[attr.ext];
+			}
+
+			newPath = path.replace(rex, function(match, tag, cha){
 				return pathReplace(attr, match, tag, cha);
 			});
 
 			if(parts.length > 1) {
-				get  = parts[1];
+				get = parts[1];
 				
 				if(pathHasGet) {
 					newPath += '&' + get;
@@ -179,17 +210,43 @@
 
 					return tmp;
 				case '{height}':
-					tmp = getClosestValues(options.heights, attr.offsetHeight) * ((options.dubbleSizeRetina && _retinaScreen) ? 2 : 1);
-
-					attr.height = tmp;
-
-					return tmp;
+					return getHeight(attr);
 				case '{retina}':
 					return _retinaScreen ? 1 : 0;
+				case '{quality}':
+					return _retinaScreen ? 40 : 80;
 				default:
 					tmp = match.substr(1, match.length - 2);
 					return (tmp in attr) ? attr[tmp] : '';
 			}
+		}
+
+		function getHeight (attr) {
+			var height;
+
+			if(typeof options.heights === 'object') {
+				height = getClosestValues(options.heights, attr.offsetHeight);
+				
+			} else if(options.heights === 'aspectratio') {
+				height = ~~((attr.offsetHeight / attr.offsetWidth) * getClosestValues(options.widths, attr.offsetWidth));
+			}
+
+			height = height * ((options.dubbleSizeRetina && _retinaScreen) ? 2 : 1);
+
+			attr.height = height;
+
+			return height;
+		}
+
+		function getExtension(path) {
+			var file, ext;
+
+			if(!path) return false;
+			
+			file = path.split(/\?|\#/i)[0];
+			ext = file.match(/(?:\.([^.]+))?$/)[1];
+
+			return ext;
 		}
 
 		function getImageAttributes(images) {
@@ -209,17 +266,20 @@
 
 				noscript = images[i].getElementsByTagName('noscript')[0];
 
-				if(noscript){
+				if(!noscript) continue;
 
-		          data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
+				data = (noscript.dataset) ? noscript.dataset : getDataAttr(noscript);
 
-		          for(key in data) {
-		            /* Android DOMStringMap has no method "hasOwnProperty()" */
-		            attr[i][key] = data[key];
-		          }
+				if(!('src' in data)) continue;
 
-		          attr[i].path = getImagePath(attr[i]);
-		        }
+				for(key in data) {
+					/* Android DOMStringMap has no method "hasOwnProperty()" */
+					attr[i][key] = data[key];
+				}
+
+				attr[i].ext = getExtension(attr[i].src);
+
+				attr[i].path = getImagePath(attr[i]);
 			}
 
 			return attr;
@@ -262,9 +322,9 @@
 			}
 
 			return result;
-    }
+		}
 
-    function legacyGetElementByClass(selector) {
+		function legacyGetElementByClass(selector) {
 			var 
 				result = [],
 				elems = doc.getElementsByTagName('*'),
@@ -277,6 +337,14 @@
 			}
 
 			return result;
+		}
+
+		function updateQueue() {
+			var imageQueue = queue;
+
+			// Reset queue
+			queue = [];
+			addImages(imageQueue);
 		}
 
 		function getClosestValues(stack, needle) {
@@ -329,7 +397,8 @@
 			destruct: destruct,
 			options: options,
 			update: resizeHandler,
-			addImages: addImages
+			addImages: addImages,
+			updateQueue: updateQueue 
 		};
 
 		// UglifyJS will remove this block
@@ -340,6 +409,9 @@
 				legacyGetElementByClass: legacyGetElementByClass,
 				getImagePath: getImagePath,
 				extend: extend,
+				sizeOf: sizeOf,
+				getExtension: getExtension,
+				buildPathRegex: buildPathRegex,
 				throttle: throttle
 			};
 		}
@@ -379,6 +451,7 @@
 			img.src = attr.path;
 			if(attr.alt) img.alt = attr.alt;
 			if(attr.title) img.title = attr.title;
+			if(attr.class) img.className = attr.class;
 
 			if(centerImage) {
 				if(attr.width) {
@@ -442,6 +515,18 @@
 		}
 
 		return destination;
+	}
+
+	function sizeOf(object) {
+		var 
+			length = 0,
+			property;
+
+		for (property in object) {
+			if(object.hasOwnProperty(property)) length++;
+		}
+
+		return length;
 	}
 
 	// http://underscorejs.org/docs/underscore.html#section-82

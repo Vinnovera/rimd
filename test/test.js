@@ -2,7 +2,6 @@ var
 	expect = chai.expect,
 	DEBUG = true;
 
-
 describe('Rimd', function() {
 	describe('constructor', function() {
 		var
@@ -22,12 +21,12 @@ describe('Rimd', function() {
 			rimd = new Rimd;
 
 		it('should return closest value from array', function () {
-			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410) === 400).to.be.true;
+			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410)).to.be.equal(400);
 		});
 
 		it('should return closest value above from array', function () {
 			rimd.options.closestAbove = true;
-			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410) === 550).to.be.true;
+			expect(rimd.test.getClosestValues([150, 400, 550, 600], 410)).to.be.equal(550);
 		});
 	});
 
@@ -47,6 +46,26 @@ describe('Rimd', function() {
 				c: 'd',
 				f: 'g'
 			});
+		});
+	});
+
+	describe('sizeOf', function() {
+		var
+			rimd = new Rimd;
+
+		it('should return size of object', function () {
+			expect(rimd.test.sizeOf({
+				a: 'b',
+				c: 'd'
+			})).to.deep.equal(2);
+		});
+
+		it('should return zero of empty object', function () {
+			expect(rimd.test.sizeOf({})).to.deep.equal(0);
+		});
+
+		it('should not crash on bad input', function () {
+			expect(rimd.test.sizeOf.bind(null, '')).to.not.throw(TypeError);
 		});
 	});
 
@@ -74,9 +93,19 @@ describe('Rimd', function() {
 				'offsetHeight': 0,
 				'offsetWidth': 400,
 				'path': 'resimage/?image=path/to/image.jpg&w=320',
+				'ext': 'jpg',
 				'width': 320
 			}]);
-		}); 
+		});
+
+		it('should return the extension of image', function() {
+			var
+				elem = rimd.test.legacyGetElementByClass('getImageAttributesExt'),
+				attr = rimd.test.getImageAttributes(elem)[0];
+
+			expect(attr).to.include.keys('ext');
+			expect(attr.ext).to.be.equal('jpg');
+		});
 	});
 
 	describe('getImagePath', function() {
@@ -88,7 +117,7 @@ describe('Rimd', function() {
 					'offsetWidth': 500
 				});
 
-			expect(path === 'resimage/?image=path/to/image.jpg&w=600').to.be.ok;
+			expect(path).to.be.equal('resimage/?image=path/to/image.jpg&w=600');
 		});
 
 		it('should add arbitrary data values to the path', function() {
@@ -103,7 +132,7 @@ describe('Rimd', function() {
 
 			for(i = 0, len = img.attributes.length; i < len; i++) {
 				if(img.attributes[i].name === 'src') {
-					expect(img.attributes[i].value === 'bar').to.be.ok;
+					expect(img.attributes[i].value).to.be.equal('bar');
 					return;
 				}
 			}
@@ -121,7 +150,186 @@ describe('Rimd', function() {
 					'offsetWidth': 500
 				});
 
-			expect(path === 'path/to/image.jpg/600/').to.be.ok;
+			expect(path).to.be.equal('path/to/image.jpg/600/');
+		});
+	});
+
+	describe('pathOverride', function() {
+		it('should use separate path for certain file extensions', function() {
+			var 
+				rimd = new Rimd({
+					className: 'pathOverride',
+					path: 'normal/{path}/to/image/{width}',
+					pathOverride: {
+						gif: 'overridden/{path}/to/image'
+					}
+				}),
+				elem = rimd.test.legacyGetElementByClass('pathOverride')[0],
+				img = elem.getElementsByTagName('img')[0],
+				i, len;
+
+			for(i = 0, len = img.attributes.length; i < len; i++) {
+				if(img.attributes[i].name === 'src') {
+					expect(img.attributes[i].value).to.be.equal('overridden/image.gif/to/image');
+					return;
+				}
+			}
+
+			throw new Error('src attribute not found');
+		});
+
+		it('should use the regular path', function() {
+			var 
+				rimd = new Rimd({
+					className: 'pathOverride2',
+					path: 'normal/{path}/to/image/{width}',
+					pathOverride: {
+						gif: 'overridden/{path}/to/image'
+					},
+					widths: [400]
+				}),
+				elem = rimd.test.legacyGetElementByClass('pathOverride2')[0],
+				img = elem.getElementsByTagName('img')[0],
+				i, len;
+
+			for(i = 0, len = img.attributes.length; i < len; i++) {
+				if(img.attributes[i].name === 'src') {
+					expect(img.attributes[i].value).to.be.equal('normal/image.jpg/to/image/400');
+					return;
+				}
+			}
+
+			throw new Error('src attribute not found');
+		});
+	});
+
+	describe('blacklist', function() {
+		it('should not transform images with blacklisted extension', function() {
+			var 
+				rimd = new Rimd({
+					blacklist: ['gif']
+				}),
+				imagePath = 'path/to/image.gif',
+				path = rimd.test.getImagePath({
+					'src': imagePath,
+					'ext': 'gif'
+				});
+
+			expect(path).to.be.equal(imagePath);
+		});
+
+		it('should have untransformed path', function() {
+			var 
+				rimd = new Rimd({
+					className: 'blacklist',
+					blacklist: ['gif'],
+					widths: [400]
+				}),
+				elem = rimd.test.legacyGetElementByClass('blacklist')[0],
+				img = elem.getElementsByTagName('img')[0],
+				i, len;
+
+			for(i = 0, len = img.attributes.length; i < len; i++) {
+				if(img.attributes[i].name === 'src') {
+					expect(img.attributes[i].value).to.be.equal('path/to/image.gif');
+					return;
+				}
+			}
+
+			throw new Error('src attribute not found');
+		});
+	});
+
+	describe('getExtension', function() {
+		var rimd = new Rimd;
+
+		it('should return extenstion from path', function() {
+			var ext = rimd.test.getExtension('path/to/image.jpg');
+
+			expect(ext).to.be.equal('jpg');
+		});
+
+		it('should return extenstion from path with multiple periods', function() {
+			var ext = rimd.test.getExtension('path/to.the/image.file.jpg');
+
+			expect(ext).to.be.equal('jpg');
+		});
+
+		it('should return extenstion from url with search param', function() {
+			var ext = rimd.test.getExtension('path/to/image.jpg?q=query');
+
+			expect(ext).to.be.equal('jpg');
+		});
+
+		it('should return extenstion from url with search param and hash', function() {
+			var ext = rimd.test.getExtension('path/to/image.jpg?q=query#hash');
+
+			expect(ext).to.be.equal('jpg');
+		});
+
+		it('should return falsy when no extension', function() {
+			var ext = rimd.test.getExtension('path/to/image?q=query');
+
+			expect(!ext).to.be.ok;
+		});
+
+		it('should not crash on bad input', function() {
+			expect(rimd.test.getExtension).to.not.throw(TypeError);
+		});
+	});
+
+	describe('buildPathRegex', function() {
+
+		it('should return a regular expression based on path', function() {
+			var rimd = new Rimd;
+
+			expect(rimd.test.buildPathRegex('{path}').toString()).to.be.equal('/\\{path\\}/g');
+		});
+
+		it('should return a regular expression based on path', function() {
+			var rimd = new Rimd;
+
+			expect(rimd.test.buildPathRegex('/path/{path}/width/{width}/{nothing}').toString()).to.be.equal('/\\{path\\}|\\{width\\}|\\{nothing\\}/g');
+		});
+	});
+
+	describe('malfromed input', function() {
+		describe('missing data-src', function() {
+			it('should not crash', function() {
+				var rimd = new Rimd({
+					className: 'missingSrc',
+					reloadOnResize: true
+				});
+
+				expect(rimd.update).to.not.throw(TypeError);
+			});
+
+		});
+
+		describe('missing path', function() {
+			it('should not crash', function() {
+				var 
+					path, // undefined
+					rimd = new Rimd({
+						path: path,
+						className: 'missingPath',
+						reloadOnResize: true
+					});
+
+				expect(rimd.update).to.not.throw(TypeError);
+			});
+		});
+
+		describe('missing noscript element', function() {
+			it('should not crash', function() {
+				var 
+					rimd = new Rimd({
+						className: 'missingNoscript',
+						reloadOnResize: true
+					});
+
+				expect(rimd.update).to.not.throw(TypeError);
+			});
 		});
 	});
 

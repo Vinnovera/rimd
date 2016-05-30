@@ -24,7 +24,6 @@
 		}
 	</script>
 
-
 	<div class="rimd" style="width: 400px;">
 		<noscript data-src="path/to/image.jpg" data-alt="Alt" data-title="Title"></noscript>
 	</div>
@@ -33,8 +32,36 @@
 	<div class="getImageAttributes" style="width: 400px;">
 		<noscript data-src="path/to/image.jpg" data-alt="Alt" data-title="Title"></noscript>
 	</div>
+
+	<div class="getImageAttributesExt" style="width: 400px;">
+		<noscript data-src="path/to/image.jpg"></noscript>
+	</div>
+
 	<div class="getImagePath" style="width: 400px;">
 		<noscript data-src="path/to/image.jpg" data-alt="Alt" data-title="Title" data-foo="bar"></noscript>
+	</div>
+
+	<div class="blacklist" style="width: 400px">
+		<noscript data-src="path/to/image.gif"></noscript>
+	</div>
+
+	<div class="pathOverride" style="width: 400px">
+		<noscript data-src="image.gif"></noscript>
+	</div>
+
+	<div class="pathOverride2" style="width: 400px">
+		<noscript data-src="image.jpg"></noscript>
+	</div>
+	
+	<div class="missingSrc" style="width: 400px;">
+		<noscript data-alt="Alt" data-title="Title" data-foo="bar"></noscript>
+	</div>
+
+	<div class="missingPath" style="width: 400px;">
+		<noscript data-src="path/to/image.jpg" data-alt="Alt" data-title="Title" data-foo="bar"></noscript>
+	</div>
+
+	<div class="missingNoscript" style="width: 400px;">
 	</div>
 </body>  
 </html> 
