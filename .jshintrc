@@ -11,6 +11,8 @@
 	"globals": {
 		"Window": true,
 		"HTMLDocument": true,
-		"DEBUG": true
+		"DEBUG": true,
+		"define": true,
+		"module": true
 	}
 }

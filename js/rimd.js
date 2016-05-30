@@ -2,10 +2,27 @@
  * @author Per Stenström <per@vinnovera.se>
  */
 
-(function(win, doc) {
+(function (root, factory) {
 	"use strict";
 
+	if (typeof define === 'function' && define.amd) {
+		define([], factory());
+	} else if (typeof exports === 'object') {
+		module.exports = factory();
+	} else {
+		root.Rimd = factory();
+	}
+}(this, function () {
+	"use strict";
+
+	if (!window) {
+		/* Doesn't work in node env */
+		return false;
+	}
+
 	var
+		win           = window,
+		doc           = document,
 		_retinaScreen = (win.devicePixelRatio > 1);
 
 	// window.addEventListener polyfill
@@ -394,7 +411,8 @@
 				extend: extend,
 				sizeOf: sizeOf,
 				getExtension: getExtension,
-				buildPathRegex: buildPathRegex
+				buildPathRegex: buildPathRegex,
+				throttle: throttle
 			};
 		}
 
@@ -511,32 +529,51 @@
 		return length;
 	}
 
+	// http://underscorejs.org/docs/underscore.html#section-82
 	function throttle(fn, threshhold, context) {
 		var 
-			last, deferTimer;
+			args,
+			last = 0,
+			deferTimer = null,
+			later = function() {
+				last = new Date().getTime();
+				fn.apply(context, args);
+
+				context = args = null;
+			};
 
 		threshhold = threshhold || 17; // ~ 1000 / 60
 
 		return function() {
 			var
-				now = new Date(),
-				args = arguments;
+				now = new Date().getTime(),
+				remaining = threshhold - (now - last);
+				
+			args = arguments;
 
 			context = context || this;
 
-			if (last && now < last + threshhold) {
-				// hold on to it
-				clearTimeout(deferTimer);
-				deferTimer = setTimeout(function() {
-					last = now;
-					fn.apply(context, args);
-				}, threshhold);
+			if (last && (remaining <= 0 || remaining > threshhold)) {
+
+				if (deferTimer) {
+					clearTimeout(deferTimer);
+					deferTimer = null;
+				}
+
+				later();
+
+			} else if(!last) {
+
+				// Leading call
+				later();
 			} else {
-				last = now;
-				fn.apply(context, args);
+
+				// Trailing call
+				clearTimeout(deferTimer);
+				deferTimer = setTimeout(later, remaining);
 			}
 		};
 	}
 
-	win.Rimd = Rimd;
-})(this, this.document);
+	return Rimd;
+}));
