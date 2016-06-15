@@ -120,7 +120,7 @@
 					len = elems.length;
 
 				for (; i < len; i++) {
-					if(!('src' in newAttr)) continue;
+					if(!('src' in newAttr[i])) continue;
 
 					if(attr[i].path !== getImagePath(newAttr[i])) {
 						images[i].updateImage(newAttr[i]);
