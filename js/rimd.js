@@ -214,7 +214,7 @@
 				case '{retina}':
 					return _retinaScreen ? 1 : 0;
 				case '{quality}':
-					return _retinaScreen ? 40 : 80;
+					return _retinaScreen && options.dubbleSizeRetina ? 40 : 80;
 				default:
 					tmp = match.substr(1, match.length - 2);
 					return (tmp in attr) ? attr[tmp] : '';
