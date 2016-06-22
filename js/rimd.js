@@ -88,6 +88,8 @@
 
 		options = extend(defaults, params);
 
+		options.dubbleSizeRetina = options.dubbleSizeRetina && _retinaScreen;
+
 		pathHasGet = options.path.split('?').length > 1;
 		pathRegex = buildPathRegex(options.path);
 
@@ -204,7 +206,7 @@
 
 			switch (match) {
 				case '{width}':
-					tmp = getClosestValues(options.widths, attr.offsetWidth) * ((options.dubbleSizeRetina && _retinaScreen) ? 2 : 1);
+					tmp = getClosestValues(options.widths, attr.offsetWidth) * (options.dubbleSizeRetina ? 2 : 1);
 
 					attr.width = tmp;
 
@@ -214,7 +216,7 @@
 				case '{retina}':
 					return _retinaScreen ? 1 : 0;
 				case '{quality}':
-					return _retinaScreen && options.dubbleSizeRetina ? 40 : 80;
+					return options.dubbleSizeRetina ? 40 : 80;
 				default:
 					tmp = match.substr(1, match.length - 2);
 					return (tmp in attr) ? attr[tmp] : '';
@@ -231,7 +233,7 @@
 				height = ~~((attr.offsetHeight / attr.offsetWidth) * getClosestValues(options.widths, attr.offsetWidth));
 			}
 
-			height = height * ((options.dubbleSizeRetina && _retinaScreen) ? 2 : 1);
+			height = height * (options.dubbleSizeRetina ? 2 : 1);
 
 			attr.height = height;
 
