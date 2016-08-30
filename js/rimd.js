@@ -77,7 +77,10 @@
 				lazyload:         false,
 				closestAbove:     false,
 				centerImage:      false,
-				dubbleSizeRetina: false
+				dubbleSizeRetina: false,
+				retinaMultiplyer: 2,
+				retinaQuality: 40,
+				normalQuality: 80
 			},
 			images = [],
 			elems = [],
@@ -206,7 +209,7 @@
 
 			switch (match) {
 				case '{width}':
-					tmp = getClosestValues(options.widths, attr.offsetWidth) * (options.dubbleSizeRetina ? 2 : 1);
+					tmp = getClosestValues(options.widths, attr.offsetWidth) * (options.dubbleSizeRetina ? options.retinaMultiplyer : 1);
 
 					attr.width = tmp;
 
@@ -216,7 +219,7 @@
 				case '{retina}':
 					return _retinaScreen ? 1 : 0;
 				case '{quality}':
-					return options.dubbleSizeRetina ? 40 : 80;
+					return options.dubbleSizeRetina ? options.retinaQuality : options.normalQuality;
 				default:
 					tmp = match.substr(1, match.length - 2);
 					return (tmp in attr) ? attr[tmp] : '';
@@ -233,7 +236,7 @@
 				height = ~~((attr.offsetHeight / attr.offsetWidth) * getClosestValues(options.widths, attr.offsetWidth));
 			}
 
-			height = height * (options.dubbleSizeRetina ? 2 : 1);
+			height = height * (options.dubbleSizeRetina ? options.retinaMultiplyer : 1);
 
 			attr.height = height;
 
