@@ -211,6 +211,9 @@
 				case '{width}':
 					tmp = getClosestValues(options.widths, attr.offsetWidth) * (options.dubbleSizeRetina ? options.retinaMultiplyer : 1);
 
+					// Round down to natural number
+					tmp = ~~tmp;
+
 					attr.width = tmp;
 
 					return tmp;
@@ -238,7 +241,8 @@
 
 			height = height * (options.dubbleSizeRetina ? options.retinaMultiplyer : 1);
 
-			attr.height = height;
+			// Round down to natural number
+			attr.height = ~~height;
 
 			return height;
 		}
