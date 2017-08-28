@@ -483,7 +483,7 @@
 				top = el.getBoundingClientRect().top,
 				docEl = doc.documentElement;
 				
-			return top <= (win.pageYOffset || docEl.scrollTop)  - (docEl.clientTop || 0) + (win.innerHeight || docEl.clientHeight) * 1.3;
+			return top - (docEl.clientTop || 0) - (docEl.clientHeight || win.innerHeigth) * 1.5 < 0;
 		}
 
 		function removeListeners() {
