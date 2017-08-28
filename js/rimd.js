@@ -432,12 +432,13 @@
 		var
 			scrollHandler = throttle(function() {
 				if(isElementInViewport(elem)) {
+					img.src = src;
 					elem.appendChild(img);
 
 					removeListeners();
 				}
 			}, 200),
-			img;
+			img, src;
 
 		updateImage(attr);
 
@@ -450,7 +451,7 @@
 
 			img = doc.createElement('img');
 
-			img.src = attr.path;
+			src = attr.path;
 			if(attr.alt) img.alt = attr.alt;
 			if(attr.title) img.title = attr.title;
 			if(attr.class) img.className = attr.class;
@@ -468,6 +469,7 @@
 			}
 
 			if(!lazyload || isElementInViewport(elem)) {
+				img.src = src;
 				elem.appendChild(img);
 			} else {
 				removeListeners();
