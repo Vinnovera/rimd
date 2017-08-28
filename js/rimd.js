@@ -133,7 +133,7 @@
 				}
 
 				attr = newAttr;
-			});
+			}, 200);
 
 			win.addEventListener('resize', resizeHandler);
 		}
@@ -436,14 +436,7 @@
 
 					removeListeners();
 				}
-			}),
-			resizeHandler = throttle(function() {
-				if(typeof elem.dataset !== 'undefined') {
-					elem.dataset.top = elem.getBoundingClientRect().top;
-				}
-
-				scrollHandler();
-			}),
+			}, 200),
 			img;
 
 		updateImage(attr);
@@ -479,26 +472,21 @@
 			} else {
 				removeListeners();
 				win.addEventListener('scroll', scrollHandler); 
-				win.addEventListener('resize', resizeHandler);
+				win.addEventListener('resize', scrollHandler);
 			}
 		}
 
 		function isElementInViewport(el) {
 			var 
-				top = (el.dataset && el.dataset.top) ? el.dataset.top : el.getBoundingClientRect().top,
-				docEl = doc.documentElement,
-				isInViewport = top <= (win.pageYOffset || docEl.scrollTop)  - (docEl.clientTop || 0) + (win.innerHeight || docEl.clientHeight);
-
-			if(!isInViewport && el.dataset && !el.dataset.top) {
-				el.dataset.top = top;
-			}
-
-			return isInViewport;
+				top = el.getBoundingClientRect().top,
+				docEl = doc.documentElement;
+				
+			return top <= (win.pageYOffset || docEl.scrollTop)  - (docEl.clientTop || 0) + (win.innerHeight || docEl.clientHeight) * 1.3;
 		}
 
 		function removeListeners() {
 			win.removeEventListener('scroll', scrollHandler);
-			win.removeEventListener('resize', resizeHandler);
+			win.removeEventListener('resize', scrollHandler);
 		}
 
 		function destruct () {
