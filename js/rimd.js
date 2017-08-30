@@ -86,8 +86,9 @@
 			elems = [],
 			attr = [],
 			queue = [],
+			lazyQueue = [],
 			regexes = {},
-			pathHasGet, pathRegex, nodeList, resizeHandler, properties;
+			pathHasGet, pathRegex, nodeList, resizeHandler, properties, scrollHandler;
 
 		options = extend(defaults, params);
 
@@ -133,9 +134,44 @@
 				}
 
 				attr = newAttr;
-			});
+			}, 200);
 
 			win.addEventListener('resize', resizeHandler);
+		}
+
+		if(options.lazyload) {
+			scrollHandler = throttle(function() {
+				var 
+					len = lazyQueue.length,
+					toLoad, docEl, clientTop, windowHeight, top, item;
+
+				if(!len) return;
+
+				toLoad = [];
+				
+				docEl = doc.documentElement;
+				clientTop = docEl.clientTop || 0;
+				windowHeight = docEl.clientHeight || win.innerHeigth;
+
+				for(len -= 1; len > -1; len--) {
+					top = lazyQueue[len].e.getBoundingClientRect().top;
+
+					if(top - clientTop - windowHeight * 1.5 < 0) {
+						toLoad.push(lazyQueue.splice(len, 1)[0]);
+					}
+				}
+
+				for(len = toLoad.length - 1; len > -1; len--) {
+					item = toLoad[len];
+
+					item.i.src = item.s;
+					item.e.appendChild(item.i);
+				}
+
+			}, 150);
+
+			win.addEventListener('scroll', scrollHandler);
+			win.addEventListener('resize', scrollHandler);
 		}
 
 		function buildPathRegex(path) {
@@ -159,7 +195,7 @@
 
 			for (;i < len; i++) {
 				if(attributes[i].offsetWidth) {
-					images.push(singleImage(nodeList[i], attributes[i], options.lazyload, options.centerImage));
+					images.push(singleImage(nodeList[i], attributes[i], options.lazyload, options.centerImage, lazyQueue));
 					elems.push(nodeList[i]);
 					attr.push(attributes[i]);
 				} else {
@@ -393,10 +429,16 @@
 				win.removeEventListener('resize', resizeHandler);
 			}
 
+			if(options.lazyload) {
+				win.removeEventListener('resize', scrollHandler);
+				win.removeEventListener('scroll', scrollHandler);
+			}
+
 			for (;i < len; i++) {
 				images[i].destruct();
 			}
 
+			lazyQueue = null;
 			images = null;
 			elems = null;
 			attr = null;
@@ -428,23 +470,9 @@
 		return properties;
 	}
 
-	function singleImage(elem, attr, lazyload, centerImage) {
+	function singleImage(elem, attr, lazyload, centerImage, lazyQueue) {
 		var
-			scrollHandler = throttle(function() {
-				if(isElementInViewport(elem)) {
-					elem.appendChild(img);
-
-					removeListeners();
-				}
-			}),
-			resizeHandler = throttle(function() {
-				if(typeof elem.dataset !== 'undefined') {
-					elem.dataset.top = elem.getBoundingClientRect().top;
-				}
-
-				scrollHandler();
-			}),
-			img;
+			img, src;
 
 		updateImage(attr);
 
@@ -457,7 +485,7 @@
 
 			img = doc.createElement('img');
 
-			img.src = attr.path;
+			src = attr.path;
 			if(attr.alt) img.alt = attr.alt;
 			if(attr.title) img.title = attr.title;
 			if(attr.class) img.className = attr.class;
@@ -475,35 +503,27 @@
 			}
 
 			if(!lazyload || isElementInViewport(elem)) {
+				img.src = src;
 				elem.appendChild(img);
 			} else {
-				removeListeners();
-				win.addEventListener('scroll', scrollHandler); 
-				win.addEventListener('resize', resizeHandler);
+
+				lazyQueue.push({
+					e: elem,
+					i: img,
+					s: src
+				});
 			}
 		}
 
 		function isElementInViewport(el) {
 			var 
-				top = (el.dataset && el.dataset.top) ? el.dataset.top : el.getBoundingClientRect().top,
-				docEl = doc.documentElement,
-				isInViewport = top <= (win.pageYOffset || docEl.scrollTop)  - (docEl.clientTop || 0) + (win.innerHeight || docEl.clientHeight);
-
-			if(!isInViewport && el.dataset && !el.dataset.top) {
-				el.dataset.top = top;
-			}
-
-			return isInViewport;
-		}
-
-		function removeListeners() {
-			win.removeEventListener('scroll', scrollHandler);
-			win.removeEventListener('resize', resizeHandler);
+				top = el.getBoundingClientRect().top,
+				docEl = doc.documentElement;
+				
+			return top - (docEl.clientTop || 0) - (docEl.clientHeight || win.innerHeigth) * 1.5 < 0;
 		}
 
 		function destruct () {
-			removeListeners();
-
 			if(img && img.parentNode) {
 				img.parentNode.removeChild(img);
 			}
@@ -512,7 +532,6 @@
 		}
 
 		return {
-			removeListeners: removeListeners,
 			updateImage: updateImage,
 			destruct: destruct
 		};
