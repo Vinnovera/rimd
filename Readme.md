@@ -36,7 +36,10 @@ defaults = {
 	lazyload:         false,
 	closestAbove:     false,
 	centerImage:      false,
-	dubbleSizeRetina: false
+	dubbleSizeRetina: false,
+	retinaMultiplyer: 2,
+	retinaQuality:    40,
+	normalQuality:    80
 };
 ```
 
@@ -94,6 +97,15 @@ Calculate width and height to center the image in the element using top/left 50%
 
 #### dubbleSizeRetina
 Load twice as big images for retina screens. 
+
+#### retinaMultiplyer
+You might not always want double size retina images. This multiplier will be used for `dubbleSizeRetina` images.
+
+#### retinaQuality
+Set as value for `{quality}` in the path for retina images.
+
+#### normalQuality
+Set as value for `{quality}` in the path for non-retina images.
 
 ### Methods
 
