@@ -23,7 +23,13 @@
 	var
 		win           = window,
 		doc           = document,
-		_retinaScreen = (win.devicePixelRatio > 1);
+		_retinaScreen = (win.devicePixelRatio > 1),
+		unique = function() {
+			var count = 0;
+			return function () {
+				return ++count;
+			};
+		}();
 
 	// window.addEventListener polyfill
 	if(!win.addEventListener) {
@@ -472,6 +478,7 @@
 
 	function singleImage(elem, attr, lazyload, centerImage, lazyQueue) {
 		var
+			id = unique(),
 			img, src;
 
 		updateImage(attr);
@@ -507,11 +514,23 @@
 				elem.appendChild(img);
 			} else {
 
+				removeFromQueue();
+
 				lazyQueue.push({
+					id: id,
 					e: elem,
 					i: img,
 					s: src
 				});
+			}
+		}
+
+		function removeFromQueue() {
+			for(var i = 0, len = lazyQueue.length; i < len; i++) {
+				if(lazyQueue[i].id === id) {
+					lazyQueue.splice(i, 1);
+					return;
+				}
 			}
 		}
 

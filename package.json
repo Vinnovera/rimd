@@ -5,7 +5,8 @@
   "main": "js/rimd.min.js",
   "scripts": {
     "test": "phantomjs ./node_modules/mocha-phantomjs-core/mocha-phantomjs-core.js test/test.html",
-    "start": "gulp"
+    "start": "gulp",
+    "build": "gulp build"
   },
   "keywords": [
     "images",

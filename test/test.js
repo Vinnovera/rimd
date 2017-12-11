@@ -133,6 +133,8 @@ describe('Rimd', function() {
 			for(i = 0, len = img.attributes.length; i < len; i++) {
 				if(img.attributes[i].name === 'src') {
 					expect(img.attributes[i].value).to.be.equal('bar');
+					
+					rimd.destruct();
 					return;
 				}
 			}
@@ -151,6 +153,7 @@ describe('Rimd', function() {
 				});
 
 			expect(path).to.be.equal('path/to/image.jpg/600/');
+			rimd.destruct();
 		});
 	});
 
@@ -171,6 +174,8 @@ describe('Rimd', function() {
 			for(i = 0, len = img.attributes.length; i < len; i++) {
 				if(img.attributes[i].name === 'src') {
 					expect(img.attributes[i].value).to.be.equal('overridden/image.gif/to/image');
+					
+					rimd.destruct();
 					return;
 				}
 			}
@@ -195,6 +200,8 @@ describe('Rimd', function() {
 			for(i = 0, len = img.attributes.length; i < len; i++) {
 				if(img.attributes[i].name === 'src') {
 					expect(img.attributes[i].value).to.be.equal('normal/image.jpg/to/image/400');
+					
+					rimd.destruct();
 					return;
 				}
 			}
@@ -216,6 +223,7 @@ describe('Rimd', function() {
 				});
 
 			expect(path).to.be.equal(imagePath);
+			rimd.destruct();
 		});
 
 		it('should have untransformed path', function() {
@@ -232,6 +240,8 @@ describe('Rimd', function() {
 			for(i = 0, len = img.attributes.length; i < len; i++) {
 				if(img.attributes[i].name === 'src') {
 					expect(img.attributes[i].value).to.be.equal('path/to/image.gif');
+
+					rimd.destruct();
 					return;
 				}
 			}
@@ -284,12 +294,14 @@ describe('Rimd', function() {
 			var rimd = new Rimd;
 
 			expect(rimd.test.buildPathRegex('{path}').toString()).to.be.equal('/\\{path\\}/g');
+			rimd.destruct();
 		});
 
 		it('should return a regular expression based on path', function() {
 			var rimd = new Rimd;
 
 			expect(rimd.test.buildPathRegex('/path/{path}/width/{width}/{nothing}').toString()).to.be.equal('/\\{path\\}|\\{width\\}|\\{nothing\\}/g');
+			rimd.destruct();
 		});
 	});
 
@@ -302,6 +314,7 @@ describe('Rimd', function() {
 				});
 
 				expect(rimd.update).to.not.throw(TypeError);
+				rimd.destruct();
 			});
 
 		});
@@ -317,6 +330,7 @@ describe('Rimd', function() {
 					});
 
 				expect(rimd.update).to.not.throw(TypeError);
+				rimd.destruct();
 			});
 		});
 
@@ -329,6 +343,7 @@ describe('Rimd', function() {
 					});
 
 				expect(rimd.update).to.not.throw(TypeError);
+				rimd.destruct();
 			});
 		});
 	});
@@ -343,6 +358,7 @@ describe('Rimd', function() {
 			throttledCallack('le1');
 
 			expect(callback.called).to.be.ok;
+			rimd.destruct();
 		});
 
 		it('should allow the trailing call to trigger', function(done) {
@@ -363,6 +379,7 @@ describe('Rimd', function() {
 				expect(callback.calledTwice).to.be.ok;
 				expect(callback.args[1][0]).to.be.equal('se4');
 
+				rimd.destruct();
 				done();
 			}, 6);
 		});
@@ -382,6 +399,8 @@ describe('Rimd', function() {
 				if(idx >= 12) {
 					clearTimeout(interval);
 					expect(callback.callCount).to.be.equal(3);
+
+					rimd.destruct();
 					done();
 				}
 			}, 10);
@@ -400,7 +419,7 @@ describe('Rimd', function() {
 
 			if(window.callPhantom) {
 				window.callPhantom({
-					viewportSize : {
+					viewportSize: {
 						width : 800,
 						height : 600
 					}
@@ -417,7 +436,7 @@ describe('Rimd', function() {
 
 			if(window.callPhantom) {
 				window.callPhantom({
-					viewportSize : {
+					viewportSize: {
 						width : 700,
 						height : 600
 					}
@@ -425,6 +444,109 @@ describe('Rimd', function() {
 
 				expect(elem[0].getElementsByTagName('img').length).to.be.equal(1);
 				expect(getQuery(elem[0].getElementsByTagName('img')[0].src)).to.be.equal('?image=path/to/image.jpg&w=700');
+
+				localRimd.destruct();
+			}
+		});
+	});
+
+	describe('lazyload', function() {
+		var rimd = new Rimd;
+
+		it('should load image when scrolled into view', function() {
+			var
+				elem = rimd.test.legacyGetElementByClass('lazyload'),
+				localRimd;
+
+			if(window.callPhantom) {
+				window.callPhantom({
+					viewportSize: {
+						width : 400,
+						height : 100
+					}
+				});
+			}
+
+			localRimd = new Rimd({
+				widths: ['400'],
+				lazyload: true,
+				className: 'lazyload'
+			});
+
+			expect(elem[0].getElementsByTagName('img').length).to.be.equal(0);
+
+			if(window.callPhantom) {
+				window.scrollTo(0, 400);
+				window.callPhantom({
+					viewportSize: {
+						width : 400,
+						height : 200
+					}
+				});
+
+				expect(getQuery(elem[0].getElementsByTagName('img')[0].src)).to.be.equal('?image=path/to/image.jpg&w=400');
+				localRimd.destruct();
+			}
+		});
+
+		it('should not load multiple images when page is resized before image is loaded', function(done) {
+			var
+				elem = rimd.test.legacyGetElementByClass('lazyloadResize'),
+				localRimd;
+
+			if(window.callPhantom) {
+				window.callPhantom({
+					viewportSize: {
+						width : 400,
+						height : 100
+					}
+				});
+			}
+
+			localRimd = new Rimd({
+				widths: ['200', '400', '600'],
+				lazyload: true,
+				reloadOnResize: true,
+				className: 'lazyloadResize'
+			});
+
+			expect(elem[0].getElementsByTagName('img').length).to.be.equal(0);
+
+			if(window.callPhantom) {
+				window.scrollTo(0, 300);
+				window.callPhantom({
+					viewportSize: {
+						width : 600,
+						height : 100
+					}
+				});
+
+				setTimeout(function () {
+					window.scrollTo(0, 600);
+					window.callPhantom({
+						viewportSize: {
+							width : 200,
+							height : 100
+						}
+					});
+					expect(elem[0].getElementsByTagName('img').length).to.be.equal(0);
+				}, 200);
+
+				setTimeout(function () {
+					window.scrollTo(0, 1400);
+					window.callPhantom({
+						viewportSize: {
+							width : 200,
+							height : 200
+						}
+					});
+
+					setTimeout(function () {
+						expect(elem[0].getElementsByTagName('img').length).to.be.equal(1);
+						expect(getQuery(elem[0].getElementsByTagName('img')[0].src)).to.be.equal('?image=path/to/image.jpg&w=200');
+						done();
+					}, 100);
+				}, 400);
 			}
 		});
 	});
