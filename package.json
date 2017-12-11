@@ -1,6 +1,6 @@
 {
   "name": "rimd",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Responsive images",
   "main": "js/rimd.min.js",
   "scripts": {
