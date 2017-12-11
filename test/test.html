@@ -3,7 +3,7 @@
 <head>  
 	<title></title>
 	<meta charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="../node_modules/mocha-phantomjs/node_modules/mocha/mocha.css">
+	<link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
 </head>  
 <body>  
 	<div id="mocha"></div>
@@ -15,6 +15,7 @@
 		mocha.reporter('html');
   </script>
 	<script src="../js/rimd.js"></script>
+	<script src="helpers/utils.js"></script>
 	<script src="test.js"></script>
 	<script>
 		if (window.mochaPhantomJS) {
@@ -63,5 +64,9 @@
 
 	<div class="missingNoscript" style="width: 400px;">
 	</div>
-</body>  
-</html> 
+
+	<div class="reloadOnResize" style="max-width: 800px;">
+		<noscript data-src="path/to/image.jpg" data-alt="Alt" data-title="Title"></noscript>
+	</div>
+</body>
+</html>

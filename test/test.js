@@ -388,4 +388,44 @@ describe('Rimd', function() {
 		});
 
 	});
+
+	
+	describe('reloadOnResize', function() {
+		var rimd = new Rimd;
+
+		it('should reload image when window resizes', function() {
+			var
+				elem = rimd.test.legacyGetElementByClass('reloadOnResize'),
+				localRimd;
+
+			if(window.callPhantom) {
+				window.callPhantom({
+					viewportSize : {
+						width : 800,
+						height : 600
+					}
+				});
+			}
+
+			localRimd = new Rimd({
+				widths: ['700', '800'],
+				reloadOnResize: true,
+				className: 'reloadOnResize'
+			});
+
+			expect(getQuery(elem[0].getElementsByTagName('img')[0].src)).to.be.equal('?image=path/to/image.jpg&w=800');
+
+			if(window.callPhantom) {
+				window.callPhantom({
+					viewportSize : {
+						width : 700,
+						height : 600
+					}
+				});
+
+				expect(elem[0].getElementsByTagName('img').length).to.be.equal(1);
+				expect(getQuery(elem[0].getElementsByTagName('img')[0].src)).to.be.equal('?image=path/to/image.jpg&w=700');
+			}
+		});
+	});
 });
