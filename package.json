@@ -4,7 +4,7 @@
   "description": "Responsive images",
   "main": "js/rimd.min.js",
   "scripts": {
-    "test": "mocha-phantomjs test/test.html"
+    "test": "phantomjs ./node_modules/mocha-phantomjs-core/mocha-phantomjs-core.js test/test.html"
   },
   "keywords": [
     "images",
@@ -22,8 +22,9 @@
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "^1.0.1",
     "jshint-stylish": "^1.0.0",
-    "mocha-phantomjs": "3.6.0",
-    "phantomjs": "1.9.7-15",
+    "mocha": "^4.0.1",
+    "mocha-phantomjs-core": "^2.1.2",
+    "phantomjs-prebuilt": "^2.1.16",
     "sinon": "^1.17.4"
   },
   "repository": {
