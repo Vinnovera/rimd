@@ -509,13 +509,12 @@
 				}
 			}
 
+			removeFromQueue();
+			
 			if(!lazyload || isElementInViewport(elem)) {
 				img.src = src;
 				elem.appendChild(img);
 			} else {
-
-				removeFromQueue();
-
 				lazyQueue.push({
 					id: id,
 					e: elem,
